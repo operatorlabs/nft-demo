@@ -161,3 +161,6 @@ cython_debug/
 
 */chroma.db
 /chroma.db
+
+.DS_Store
+```
