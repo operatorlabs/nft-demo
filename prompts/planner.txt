@@ -1,0 +1,1 @@
+You have two API's to use: Operator: "find the address of any project", Reservoir: "NFT sales, bids, prices"

@@ -1,0 +1,165 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Operator",
+    "description": "Operator's API helps developers build ambitious AI-enabled crypto products by enabling agents and users alike to find any smart contract or wallet using natural language.",
+    "version": "1.0"
+  },
+  "paths": {
+    "/search/": {
+      "post": {
+        "summary": "Search",
+        "operationId": "search_search__post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Query" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Entities" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "security": [{ "x-api-key": [] }]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Entities": {
+        "properties": {
+          "entity": { "type": "string", "title": "Entity" },
+          "matches": {
+            "items": { "$ref": "#/components/schemas/Entity" },
+            "type": "array",
+            "title": "Matches"
+          }
+        },
+        "type": "object",
+        "required": ["entity", "matches"],
+        "title": "Entities"
+      },
+      "Entity": {
+        "properties": {
+          "address": {
+            "type": "string",
+            "title": "Address",
+            "description": "The address of the entity."
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "The description of the entity."
+          },
+          "semantic_similarity": {
+            "type": "number",
+            "title": "Semantic Similarity",
+            "description": "The semantic similarity value of the entity."
+          },
+          "network_value": {
+            "type": "number",
+            "title": "Network Value",
+            "description": "The network value of the entity.",
+            "default": 0
+          },
+          "rank": {
+            "type": "number",
+            "title": "Rank",
+            "description": "The rank of the entity.",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": ["address", "description", "semantic_similarity"],
+        "title": "Entity"
+      },
+      "EntityType": {
+        "type": "string",
+        "enum": ["wallet", "identity", "contract", "nft", "token"],
+        "title": "EntityType",
+        "description": "The type of entity to search for."
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": { "$ref": "#/components/schemas/ValidationError" },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "Query": {
+        "properties": {
+          "query": {
+            "type": "string",
+            "title": "Query",
+            "description": "The query string for the search.",
+            "example": "Bored Ape Yacht Club"
+          },
+          "blockchain": {
+            "type": "string",
+            "title": "Blockchain",
+            "description": "The blockchain to use for the search.",
+            "example": "Ethereum"
+          },
+          "entity_type": {
+            "allOf": [{ "$ref": "#/components/schemas/EntityType" }],
+            "description": "The type of entity to search for.",
+            "example": "nft"
+          },
+          "query_by": {
+            "items": { "type": "string" },
+            "type": "array",
+            "title": "Query By",
+            "description": "A list of fields to look at. Only these fields will be searched.",
+            "example": "[farcaster_displayname, nft_description, agora_delegate_statement]"
+          }
+        },
+        "type": "object",
+        "required": ["query", "blockchain", "entity_type", "query_by"],
+        "title": "Query"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": { "anyOf": [{ "type": "string" }, { "type": "integer" }] },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": { "type": "string", "title": "Message" },
+          "type": { "type": "string", "title": "Error Type" }
+        },
+        "type": "object",
+        "required": ["loc", "msg", "type"],
+        "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "x-api-key": { "type": "apiKey", "in": "header", "name": "X-API-Key" }
+    }
+  },
+  "servers": [{ "url": "https://api.operator.io/" }],
+  "x-readme": {
+    "explorer-enabled": true,
+    "proxy-enabled": true,
+    "samples-enabled": true
+  }
+}
