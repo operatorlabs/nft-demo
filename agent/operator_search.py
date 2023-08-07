@@ -1,10 +1,12 @@
 from langchain.tools import BaseTool
 from typing import Any
-import os 
+import os
+from dotenv import load_dotenv
 
 # Import the OperatorSearchAPI and Query classes
 from operatorio import OperatorSearchAPI, Query, EntityType
 
+load_dotenv()
 api_key = os.environ.get("OPERATOR_API_KEY")
 
 class OperatorTool(BaseTool):
