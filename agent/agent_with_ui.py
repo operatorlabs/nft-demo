@@ -4,7 +4,7 @@ from langchain.chat_models import ChatOpenAI
 from langchain.chains.conversation.memory import ConversationBufferWindowMemory
 from langchain.agents import initialize_agent
 from dotenv import load_dotenv
-from operator_search import OperatorTool
+from operator_content import ContentTool
 from langchain.agents import load_tools
 from reservoir import ReservoirTool
 from langchain.callbacks import StreamlitCallbackHandler  # Assuming this is the correct import for the class
@@ -33,7 +33,7 @@ system_message = {
     "content": "You are a helpful assistant tasked with answering questions. When encountering new words, do not attempt to change their spelling. Assume they are proper nouns."
 }
 
-tools = [OperatorTool(), ReservoirTool()]
+tools = [ContentTool()]
 
 # initialize agent with tools
 agent = initialize_agent(
