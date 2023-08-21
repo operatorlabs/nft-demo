@@ -13,6 +13,12 @@ To run the demo locally, you will need to install the following dependencies:
 pip install -r requirements.txt
 ```
 
+Ensure you have a .env file with the necessary dependencies located in the agent/ directory:
+
+OPENAI_API_KEY
+OPERATOR_API_KEY
+RESERVOIR_API_KEY
+
 Now, load the endpoint data into Chroma. Navigate to the scripts directory and run the following command:
 
 ```
