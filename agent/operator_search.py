@@ -4,9 +4,10 @@ import os
 from dotenv import load_dotenv
 
 # Import the OperatorSearchAPI and Query classes
-from operatorio import OperatorSearchAPI, Query, EntityType
+from operatorio import OperatorSearch, Query, EntityType
 
 load_dotenv()
+
 api_key = os.environ.get("OPERATOR_API_KEY")
 
 class OperatorTool(BaseTool):
@@ -21,7 +22,7 @@ class OperatorTool(BaseTool):
     def _run(self, search: str, blockchain: str = "Ethereum", entity_type: EntityType = EntityType.token):
         
         # Initialize the OperatorSearchAPI with the retrieved API key
-        api = OperatorSearchAPI(api_key)
+        api = OperatorSearch(api_key)
 
         # Define a query to search for the task
         query = Query(

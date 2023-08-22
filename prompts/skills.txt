@@ -1,0 +1,2 @@
+1: Find the floor price of any NFT 
+2: Find the attributes of any NFT 
