@@ -6,7 +6,8 @@ from langchain.agents import initialize_agent
 from dotenv import load_dotenv
 from operator_content import ContentTool
 from langchain.agents import load_tools
-from reservoir import ReservoirTool
+from neynar_fid import AddressToFidTool
+from operator_search import OperatorTool
 from langchain.callbacks import StreamlitCallbackHandler  # Assuming this is the correct import for the class
 
 requests_tools = load_tools(["requests_all"])
@@ -30,10 +31,24 @@ conversational_memory = ConversationBufferWindowMemory(
 
 system_message = {
     "role": "system",
-    "content": "You are a helpful assistant tasked with answering questions. When encountering new words, do not attempt to change their spelling. Assume they are proper nouns."
+    "content": """
+You are a helpful assistant tasked with finding relevant casts on Farcaster.
+You must return the hash/ID for each cast or thread you return, or your answer cannot be evaluated.
+
+The first thing you must always do is decide whether the user is looking for content by a specific entity or not.
+
+If you need to identify content/casts by a specific identity (ex: 'balaji's casts about zkp'), you must follow these steps exactly in sequence:
+1. Use the Operator Search Tool to get the associated address for an identity.
+2. Use the UsernameToFid to get the FID (farcaster ID) associated with the address you found in step 1.
+3. Use the Operator Content Tool, BUT MAKE SURE in addition to supplying the query also supply the 'fid' parameter with the FID you retrieved.
+
+The last step is ALWAYS to check and make sure you included the hash associated with each thread or cast in your answer.
+
+NOTE: When encountering new words, do not attempt to change their spelling. Assume they are proper nouns. You must follow the instructions below for your final answer:
+"""
 }
 
-tools = [ContentTool()]
+tools = [OperatorTool(), AddressToFidTool(), ContentTool()]
 
 # initialize agent with tools
 agent = initialize_agent(
@@ -69,6 +84,14 @@ if submit_clicked:
 
     # Use the agent to generate an answer
     st_callback = StreamlitCallbackHandler(answer_container)  # Create callback with the container
+
+    custom_input = user_input + """
+
+NOTE: If your goal is to return a FINAL ANSWER, you MUST follow these rules: 
+1. Return a numbered list of threads that are relevant to the user's original query, AND
+2. Each thread in the list MUST INCLUDE the thread ID so it can be tracked by the user, AND
+3. You must DOUBLE CHECK your list to ensure steps 1 and 2 are followed BEFORE returning your answer
+"""
     answer = agent.run(user_input, callbacks=[st_callback])  # Pass the callback to the run method
 
     answer_container.markdown(f"<p>{answer}</p>", unsafe_allow_html=True)
