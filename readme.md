@@ -18,6 +18,8 @@ Ensure you have a .env file with the necessary dependencies located in the agent
 OPENAI_API_KEY
 OPERATOR_API_KEY
 RESERVOIR_API_KEY
+NEYNAR_API_KEY
+NEYNAR_SQL_API_KEY
 
 Now, load the endpoint data into Chroma. Navigate to the scripts directory and run the following command:
 

@@ -8,20 +8,20 @@ import time
 load_dotenv()
 api_key = os.environ.get("NEYNAR_SQL_API_KEY")
 
-class AddressesToFidTool(BaseTool):
-    name = "Addresses to Farcaster ID"
+class SearchInChannelTool(BaseTool):
+    name = "Search in channel"
     description = '''
-    As soon as you find an address for an entity or list of addresses, you must use this tool next to get the associated FIDs.
-    You will need the FID to do the next step, finding content created by this FID.
+    Use this tool to search for content specific to a channel. You must provide a channel URL as the parameter channel_url.
     '''
 
-    def _run(self, addresses: List[str]):
-        url = 'https://data.hubs.neynar.com/api/queries/12/results'
+    def _run(self, query: str, channel_url: str):
+        url = 'https://data.hubs.neynar.com/api/queries/15/results'
         params = {'api_key': api_key}
         payload = {
             "max_age": 1800,
             "parameters": {
-                "addresses": ",".join(x.strip().lower() for x in addresses)
+                "query": query,
+                "channel_url": channel_url
             }
         }
         headers = {'Content-Type': 'application/json'}
@@ -36,17 +36,15 @@ class AddressesToFidTool(BaseTool):
                     raise ValueError("Error while trying to find matches. Is your API key valid?")
                 
         rows = response["query_result"]["data"]["rows"]
-        result = {}
+        result = []
         for row in rows:
-            for addr in row["verified_addresses"]:
-                if addr.lower() in addresses:
-                    result[addr.lower()] = {
-                        "username": row["fname"],
-                        "fid": row["fid"]
-                    }
+            result.append({
+                "hash": row["hash"],
+                "updated_at": row["updated_at"],
+                "author_fid": row["fid"],
+                "content": row["text"]
+            })
         return result
 
     def _arun(self, task: Any):
         raise NotImplementedError("This tool does not support async")
-
-# curl -X POST 'https://data.hubs.neynar.com/api/queries/12/results?api_key=asdfjka' -d '{"max_age": 1800, "parameters": {"address": "0x0916c04994849c676ab2667ce5bbdf7ccc94310a"}}'

@@ -11,10 +11,12 @@ class ContentTool(BaseTool):
     name = "Operator Content Search"
     description = '''
     Use this tool when you need to look up casts (posts) and other content on the Farcaster social network.
-    IMPORTANT: if the user has asked about casts by a specific author, you must have found the author's farcaster username and associated FID first.
+    IMPORTANT NOTES TO FOLLOW:
+    1. if the user has asked about casts by a specific author, you must have found the author's farcaster username and associated FID first.
+    2. you must evaluate the result from this tool to see if all the casts are actually relevant to the user's query.
     '''
 
-    def _run(self, query: str, fid: Optional[int]):
+    def _run(self, query: str, fid: Optional[int] = None):
 
         url = "https://api.operator.io/content/"
         headers = {
@@ -36,12 +38,11 @@ class ContentTool(BaseTool):
         for match in response["matches"]:
             condensed_data.append({
                 "thread_id": match["hash"],
-                "casts_in_thread": [{x["hash"]: x["content"]} for x in match["casts"]]
+                "casts_in_thread": [{x["hash"]: x["content"], "author_fid": int(x["metadata"]["user_fid"])} for x in match["casts"]]
             })
 
 
-        return condensed_data
-        return str([thread["content"] for thread in response["matches"][:10]])
+        return condensed_data[:50]
 
     def _arun(self, task: Any):
         raise NotImplementedError("This tool does not support async")
