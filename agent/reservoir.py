@@ -8,9 +8,6 @@ from sentence_transformers import CrossEncoder
 import numpy as np
 import json
 import subprocess
-from tiktoken import Tokenizer, tokenizers
-
-encoding = tiktoken.encoding_for_model("gpt-3.5-turbo")
 
 os.environ['TOKENIZERS_PARALLELISM'] = 'true'
 
@@ -105,50 +102,40 @@ class ReservoirTool(BaseTool):
         return request_info
 
     
-def _run(self, task: str, address: str = None):
+    def _run(self, task: str, address: str = None):
+        url = self.get_url()  # Get URL
+        endpoints = self.get_endpoints(task)  # Get endpoints based on task
+        request = self.use_endpoint(url, endpoints, address)  # Use endpoint to get request
 
-    url = self.get_url()  # Get URL
-    endpoints = self.get_endpoints(task)  # Get endpoints based on task
-    request = self.use_endpoint(url, endpoints, address)  # Use endpoint to get request
+        request_message = {
+            "role": "user",
+            "content": f"Given the output of the last model {request}, delete everything but the curl request."
+        }
 
-    request_message = {
-        "role": "user",
-        "content": f"Given the output of the last model {request}, delete everything but the curl request."
-    }
+        curl = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=[request_message],
+                temperature=0,
+                max_tokens=200
+            )
 
-    curl = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[request_message],
-            temperature=0,
-            max_tokens=200
-        )
+        curl = curl['choices'][0]['message']['content']
+        print(curl)
 
-    curl = curl['choices'][0]['message']['content']
-    print(curl)
+        process = subprocess.Popen(curl, stdout=subprocess.PIPE, shell=True)
+        output, error = process.communicate()
 
-    process = subprocess.Popen(curl, stdout=subprocess.PIPE, shell=True)
-    output, error = process.communicate()
+        if error:
+            response = f"Error: {error}"
+        else:
+            response = f"Output: {output.decode('utf-8')}"
 
-    if error:
-        response = f"Error: {error}"
-    else:
-        response = f"Output: {output.decode('utf-8')}"
+        # Truncate response to approximately 18,000 characters if needed
+        if len(response) > 15000:
+            response = response[:14997] + "..."
 
-    # Truncate response to 3000 tokens if needed
-    token_count = sum(1 for _ in Tokenizer(tokenizers.ByteLevelBPETokenizer()).tokenize(response))
-    
-    if token_count > 3000:
-        truncated_response = []
-        count = 0
-        for token in Tokenizer(tokenizers.ByteLevelBPETokenizer()).tokenize(response):
-            if count + len(token) <= 2997:  # Leave room for '...'
-                truncated_response.append(token.decode('utf-8'))
-                count += len(token)
-            else:
-                break
-        response = "".join(truncated_response) + "..."
+        return response
 
-    return response
 
     def _arun(self, task: Any):
         raise NotImplementedError("This tool does not support async")
