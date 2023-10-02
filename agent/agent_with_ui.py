@@ -72,11 +72,11 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-st.title("AI Assistant")
+st.title("Farcaster Search")
 
 with st.form(key="form"):
-    user_input = st.text_input("Ask your question")
-    submit_clicked = st.form_submit_button("Submit Question")
+    user_input = st.text_input("Example: find balaji's casts about reputation")
+    submit_clicked = st.form_submit_button("Submit")
 
 output_container = st.empty()
 if submit_clicked:

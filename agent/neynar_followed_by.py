@@ -25,6 +25,7 @@ class FollowedByFidTool(BaseTool):
         # users = [{"fid": x["fid"], "followerCount": } for x in response["result"]["users"]]
 
         users = response["result"]["users"]
+        print(f"Total users: {len(users)},  sample: {users[:3]}")
         sorted_by_followers = sorted(users, key = lambda e: e["followerCount"], reverse=True)
 
         if fids_to_check:
