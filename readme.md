@@ -1,4 +1,4 @@
-## NFT Agent using Operator, Reservoir, Chroma, and Langchain Agents
+## NFT Agent using Operator (Deprecated), Reservoir, Chroma, and Langchain Agents
 
 This agent demo uses [Operator](https://operator.io), [Reservoir](https://reservoir.tools), and [Langchain Agents](https://langchain.com) to create an NFT assistant that is capable
 of retrieving information about any NFT project. 
